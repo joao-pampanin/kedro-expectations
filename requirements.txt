@@ -1,0 +1,6 @@
+kedro==0.18.2
+kedro[pandas]==0.18.2
+kedro[spark]==0.18.2
+great_expectations==0.15.32
+pyspark
+pandas
