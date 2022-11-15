@@ -4,15 +4,17 @@ from typing import Any, Dict
 import great_expectations as ge
 from kedro.framework.hooks import hook_impl
 
-
 from ruamel.yaml import YAML
 import datetime
 
-
 class KedroExpectationsHooks:
+    def __init__(self) -> None:
+        pass
+
     @hook_impl
     def before_node_run(self, inputs: Dict[str, Any]) -> None:
-        self._run_validation(inputs)
+        if self.before_node_run:
+            self._run_validation(inputs)
 
 
     def _run_validation(self, data: Dict[str, Any]):
@@ -26,7 +28,6 @@ class KedroExpectationsHooks:
         for catalog_item in data:
             formatted_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S")
             my_checkpoint_name = str(catalog_item) + "_checkpoint_" + str(formatted_time)
-            datasource_name = catalog_item + "_gedatasource"
 
             # TODO - Como atuar quando existir mais de uma suite para um mesmo dataset?
             
@@ -34,7 +35,9 @@ class KedroExpectationsHooks:
                 try:
                     catalog = yaml.safe_load(stream)
                     dataset = catalog[catalog_item]
-                    file_name, file_extension = os.path.splitext(dataset['filepath']) # data/01_raw, companies.csv
+                    parent_path, filename = os.path.split(dataset['filepath']) # data/01_raw, companies.csv
+                    filename, file_extension = os.path.splitext(filename) # companies, .csv
+                    datasource_name = parent_path + "_" + file_extension[1:] + "_gedatasource"
                 except yaml.YAMLError as exc:
                     print("Error while parsing YAML:\n", exc)
 
@@ -51,7 +54,7 @@ class KedroExpectationsHooks:
                   data_asset_name: {catalog_item}{file_extension}
                   data_connector_query:
                     index: -1
-                expectation_suite_name: {catalog_item}.basicexp
+                expectation_suite_name: {catalog_item}.exp2
             """
 
             # TODO - Exception pra esse teste
