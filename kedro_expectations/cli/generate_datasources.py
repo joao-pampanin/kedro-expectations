@@ -4,6 +4,7 @@ import great_expectations as ge
 from great_expectations.cli.datasource import sanitize_yaml_and_save_datasource
 from great_expectations import execution_engine
 from great_expectations.exceptions.exceptions import ConfigNotFoundError
+from kedro_expectations.utils import get_execution_engine_class
 
 @click.command()
 def generate_datasources():
@@ -15,10 +16,6 @@ def generate_datasources():
 
     context = ge.get_context()
 
-    # TODO - Testar great_expectations com .pickle e .pq
-    pandas_supported_types = [ ".csv", ".tsv", ".xls", ".xlsx", ".parquet", ".parq", ".pqt", ".json", ".pkl", ".feather", ".csv.gz", ".tsv.gz", ".sas7bdat", ".xpt"]
-    spark_supported_types = [ ".csv", ".tsv", ".parquet", ".parq", ".pqt"]
-
     with open(catalog_path, "r") as stream:
         try:
             created_datasources = []
@@ -28,17 +25,15 @@ def generate_datasources():
                 parent_path, filename = os.path.split(dataset['filepath']) # data/01_raw, companies
                 filename, fileextension = os.path.splitext(filename) # companies, .csv
                 dataset_type = dataset['type'] # pandas.CSVDataSet
+                execution_engine_class, execution_engine_aux_name = get_execution_engine_class(dataset, fileextension)
                 
-                # TODO - Fazer a mesma coisa para spark
-                if (not str(dataset['type']).startswith('spark')) and (fileextension in pandas_supported_types):
-                    execution_engine_class = "PandasExecutionEngine"
-                else:
+                if execution_engine_class == None:
                     print("The dataset ", catalog_item, " is currently not supported by Kedro Expectations! A datasource will not be created for this dataset")
                     print("A datasource may still be created if there are supported datasets in this same folder, but they should not be used with ", catalog_item)
                     continue
                 
                 # TODO - Em vez de yaml, da pra usar uma maneira mais confiável (ver na doc do GE)
-                datasource_name = parent_path + "_" + str(execution_engine_class[:6]).lower() + "_gedatasource"
+                datasource_name = parent_path + "_" + execution_engine_aux_name + "_gedatasource"
                 if datasource_name not in created_datasources:
                     example_yaml = f"""
                     name: {datasource_name}
