@@ -11,9 +11,9 @@ def expectations():
     """Run Kedro Expectations Commands"""
 
 
-from .generate_datasources import generate_generic_datasource
+from .generate_datasources import generate_datasources
 
-expectations.add_command(generate_generic_datasource)
+expectations.add_command(generate_datasources)
 
 
 def main():

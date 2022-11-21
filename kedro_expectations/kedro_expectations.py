@@ -1,35 +1,34 @@
+"""Implementation of the Kedro Expectations Hooks."""
 from typing import Any, Dict
-import pandas as pd
 import great_expectations as ge
 from kedro.framework.hooks import hook_impl
 
 import datetime
 from great_expectations.exceptions import DataContextError
 
-import datetime
-
-import pandas as pd
-
-import great_expectations as ge
-from great_expectations.exceptions import DataContextError
+from pandas import DataFrame as PandasDataFrame
+from pyspark.sql import DataFrame as SparkDataFrame
 
 
 class KedroExpectationsHooks:
+    """Implementation of the Kedro Expectations Hooks."""
     def __init__(self) -> None:
         pass
 
     @hook_impl
     def before_node_run(self, inputs: Dict[str, Any]) -> None:
+        """Validate inputs that are supported and have an expectation suite available"""
         if self.before_node_run:
             self._run_validation(inputs)
 
-
-    def _run_validation(self, data: Dict[str, Any]):
+    def _run_validation(self, data: Dict[str, Any]) -> None:
         for key, value in data.items():
             try:
-                if isinstance(value, pd.DataFrame):
+                if isinstance(value, PandasDataFrame):
                     context = ge.get_context()
-                    formatted_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S")
+                    formatted_time = datetime.datetime.now(
+                        datetime.timezone.utc
+                    ).strftime("%Y%m%dT%H%M%S")
 
                     checkpoint_config = {
                         "name": "my_missing_keys_checkpoint",
@@ -38,7 +37,7 @@ class KedroExpectationsHooks:
                         "validations": [
                             {
                                 "batch_request": {
-                                    "datasource_name": "generic_datasource",
+                                    "datasource_name": "validation_datasource",
                                     "data_connector_name": "default_runtime_data_connector_name",
                                     "data_asset_name": key,
                                 },
@@ -48,7 +47,7 @@ class KedroExpectationsHooks:
                     }
                     context.add_checkpoint(**checkpoint_config)
 
-                    results = context.run_checkpoint(
+                    context.run_checkpoint(
                         run_name="Kedro-Expectations-Run"+formatted_time,
                         checkpoint_name="my_missing_keys_checkpoint",
                         batch_request={
@@ -58,6 +57,11 @@ class KedroExpectationsHooks:
                             },
                         },
                     )
+                elif isinstance(value, SparkDataFrame):
+                    print("I am a Spark DF!")
             except DataContextError:
-                print(f"No expectation suite was found for \"{key}\", so Kedro Expectations will skip the validation for this datasource")
+                print(
+                    f"No expectation suite was found for \"{key}\", so ",
+                    "the plugin will skip the validation for this datasource"
+                )
                 continue
