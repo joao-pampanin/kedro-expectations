@@ -5,14 +5,15 @@ from kedro.framework.hooks import hook_impl
 
 import datetime
 from great_expectations.exceptions import DataContextError
-
+from kedro_expectations.exceptions import SuiteValidationFailure
 from pandas import DataFrame as PandasDataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
 
 
 class KedroExpectationsHooks:
     """Implementation of the Kedro Expectations Hooks."""
-    def __init__(self) -> None:
+    def __init__(self, fail_fast: bool = False) -> None:
+        self._fail_fast = fail_fast
         pass
 
     @hook_impl
@@ -47,7 +48,7 @@ class KedroExpectationsHooks:
                     }
                     context.add_checkpoint(**checkpoint_config)
 
-                    context.run_checkpoint(
+                    validation_result = context.run_checkpoint(
                         run_name="Kedro-Expectations-Run"+formatted_time,
                         checkpoint_name="my_missing_keys_checkpoint",
                         batch_request={
@@ -57,8 +58,14 @@ class KedroExpectationsHooks:
                             },
                         },
                     )
+                    
+                    if self._fail_fast and not validation_result.success:
+                        raise SuiteValidationFailure(
+                            f"Suite {key}.myexp for DataSet {key} failed!"
+                        )
+
                 elif isinstance(value, SparkDataFrame):
-                    print("I am a Spark DF!")
+                    print("Support for Spark Dataframes still not available!")
             except DataContextError:
                 print(
                     f"No expectation suite was found for \"{key}\", so ",
