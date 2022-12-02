@@ -12,9 +12,10 @@ def expectations():
 
 
 from .generate_datasources import generate_datasources
+from .create_suite import create_suite
 
 expectations.add_command(generate_datasources)
-
+expectations.add_command(create_suite)
 
 def main():
     commands()

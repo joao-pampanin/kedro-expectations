@@ -1,74 +1,86 @@
 """Implementation of the Kedro Expectations Hooks."""
-from typing import Any, Dict
-import great_expectations as ge
+import os
+from typing import Any, Dict, cast, Callable
 from kedro.framework.hooks import hook_impl
-
-import datetime
 from great_expectations.exceptions import DataContextError
 from kedro_expectations.exceptions import SuiteValidationFailure
 from pandas import DataFrame as PandasDataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
+from kedro_expectations.utils import dot_to_underscore, get_property_from_catalog_item, validate, get_suite_name, get_all_expectations
 
 
 class KedroExpectationsHooks:
     """Implementation of the Kedro Expectations Hooks."""
+
     def __init__(self, fail_fast: bool = False) -> None:
         self._fail_fast = fail_fast
         pass
 
     @hook_impl
     def before_node_run(self, inputs: Dict[str, Any]) -> None:
-        """Validate inputs that are supported and have an expectation suite available"""
+        """Validate inputs that are supported and have an expectation suite available."""
         if self.before_node_run:
             self._run_validation(inputs)
 
     def _run_validation(self, data: Dict[str, Any]) -> None:
-        for key, value in data.items():
-            try:
-                if isinstance(value, PandasDataFrame):
-                    context = ge.get_context()
-                    formatted_time = datetime.datetime.now(
-                        datetime.timezone.utc
-                    ).strftime("%Y%m%dT%H%M%S")
+        try:
+            for key, value in data.items():
 
-                    checkpoint_config = {
-                        "name": "my_missing_keys_checkpoint",
-                        "config_version": 1,
-                        "class_name": "SimpleCheckpoint",
-                        "validations": [
-                            {
-                                "batch_request": {
-                                    "datasource_name": "validation_datasource",
-                                    "data_connector_name": "default_runtime_data_connector_name",
-                                    "data_asset_name": key,
-                                },
-                                "expectation_suite_name": key + ".myexp",
-                            }
-                        ],
-                    }
-                    context.add_checkpoint(**checkpoint_config)
+                if get_property_from_catalog_item(key, "type") == "PartitionedDataSet":
+                    partitions = cast(Dict[str, Callable], value)
 
-                    validation_result = context.run_checkpoint(
-                        run_name="Kedro-Expectations-Run"+formatted_time,
-                        checkpoint_name="my_missing_keys_checkpoint",
-                        batch_request={
-                            "runtime_parameters": {"batch_data": value},
-                            "batch_identifiers": {
-                                "default_identifier_name": "default_identifier"
-                            },
-                        },
-                    )
-                    
-                    if self._fail_fast and not validation_result.success:
-                        raise SuiteValidationFailure(
-                            f"Suite {key}.myexp for DataSet {key} failed!"
-                        )
+                    for casted_key, casted_value in partitions.items():
 
-                elif isinstance(value, SparkDataFrame):
-                    print("Support for Spark Dataframes still not available!")
-            except DataContextError:
-                print(
-                    f"No expectation suite was found for \"{key}\", so ",
-                    "the plugin will skip the validation for this datasource"
-                )
-                continue
+                        # Looking for an specific expectation
+                        adjusted_key_pt1 = dot_to_underscore(key)
+                        adjusted_key_pt2 = dot_to_underscore(casted_key)
+                        print(f"Minha adjusted_key_pt1 é: {adjusted_key_pt1}")
+                        print(f"Minha adjusted_key_pt2 é: {adjusted_key_pt2}")
+
+                        adjusted_key = os.path.join(adjusted_key_pt1, adjusted_key_pt2)
+                        all_expectations = get_all_expectations(adjusted_key)
+
+                        ge_adjusted_key = adjusted_key_pt1 + "." + adjusted_key_pt2
+
+                        # Looking for a general expectation
+                        if not all_expectations:
+                            adjusted_key = dot_to_underscore(key)
+                            all_expectations = get_all_expectations(adjusted_key)
+                            ge_adjusted_key = adjusted_key
+
+                        for exp_file in all_expectations:
+                            suite_name = get_suite_name(exp_file, ge_adjusted_key)
+                            result = validate(casted_key, suite_name, casted_value())
+
+                            if self._fail_fast and not result.success:
+                                raise SuiteValidationFailure(
+                                    f"Suite {suite_name} for DataSet {adjusted_key} failed!"
+                                )
+
+                else:
+                    adjusted_key = dot_to_underscore(key)
+                    all_expectations = get_all_expectations(adjusted_key)
+                    print(f"All exp é: {all_expectations}")
+                    for exp_file in all_expectations:
+                        suite_name = get_suite_name(exp_file, adjusted_key)
+
+                        if isinstance(value, PandasDataFrame):
+                            result = validate(adjusted_key, suite_name, value)
+
+                        elif isinstance(value, SparkDataFrame):
+                            print("Spark support still not available! Skipping")
+
+                        else:
+                            print(f"Dataset {adjusted_key} is not supported by Kedro Expectations")
+
+                        if self._fail_fast and not result.success:
+                            raise SuiteValidationFailure(
+                                f"Suite {suite_name} for DataSet {adjusted_key} failed!"
+                            )
+
+        except DataContextError as dce:
+            print(
+                f"No expectation suite was found for \"{adjusted_key}\", so ",
+                "the plugin will skip the validation for this datasource\n\n"
+            )
+            print(dce)
