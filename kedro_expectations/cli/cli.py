@@ -11,10 +11,10 @@ def expectations():
     """Run Kedro Expectations Commands"""
 
 
-from .generate_datasources import generate_datasources
+from .kedro_expectations_init import init
 from .create_suite import create_suite
 
-expectations.add_command(generate_datasources)
+expectations.add_command(init)
 expectations.add_command(create_suite)
 
 def main():
