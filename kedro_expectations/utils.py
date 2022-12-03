@@ -5,7 +5,6 @@ import json
 import great_expectations as ge
 import datetime
 from great_expectations.core.batch import RuntimeBatchRequest
-from kedro_expectations.exceptions import KedroExpectationsNotInitialized
 
 # def get_execution_engine_class(dataset, fileextension):
 #     # Warning - Não existe suporte pra .pickle e .pq
@@ -19,11 +18,10 @@ from kedro_expectations.exceptions import KedroExpectationsNotInitialized
 #     else:
 #         return None, None
 
-def check_base_ge_folder():
+def base_ge_folder_exists():
     base_folder = os.getcwd()
-    ge_fodler = os.path.join(base_folder, "great_expectations")
-    if not os.path.exists(ge_fodler):
-        raise KedroExpectationsNotInitialized
+    ge_folder = os.path.join(base_folder, "great_expectations")
+    return os.path.exists(ge_folder)
 
 
 def dot_to_underscore(value):
@@ -91,7 +89,6 @@ def get_all_expectations(adjusted_key):
         "expectations",
         adjusted_key,
     )
-    print("\n",exp_suites_path,"\n")
     all_expectations = glob.glob(
         os.path.join(
             exp_suites_path, "*.json"

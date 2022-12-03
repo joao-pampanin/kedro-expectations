@@ -11,7 +11,7 @@ def expectations():
     """Run Kedro Expectations Commands"""
 
 
-from .kedro_expectations_init import init
+from .init_ge import init
 from .create_suite import create_suite
 
 expectations.add_command(init)

@@ -3,12 +3,12 @@ import click
 import os
 import yaml
 import great_expectations as ge
-from kedro_expectations.utils import check_base_ge_folder
+from kedro_expectations.utils import base_ge_folder_exists
 
 
 @click.command()
 def init() -> None:
-    check_base_ge_folder()
+    base_ge_folder_exists()
 
     try:
         os.system("great_expectations init")
