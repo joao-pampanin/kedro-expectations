@@ -3,12 +3,15 @@ import click
 import os
 import yaml
 import great_expectations as ge
+from kedro_expectations.utils import check_base_ge_folder
 
 
 @click.command()
 def init() -> None:
+    check_base_ge_folder()
+
     try:
-        os.system("great_expectations init -y")
+        os.system("great_expectations init")
 
         context = ge.get_context()
         validation_datasource = {

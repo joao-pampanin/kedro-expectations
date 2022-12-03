@@ -6,11 +6,13 @@ import pandas as pd
 import great_expectations as ge
 from kedro.framework.session import KedroSession
 from great_expectations.core.batch import RuntimeBatchRequest
-from kedro_expectations.utils import dot_to_underscore, create_raw_suite, populate_new_suite
+from kedro_expectations.utils import dot_to_underscore, create_raw_suite, populate_new_suite, check_base_ge_folder
 
 
 @click.command()
 def create_suite() -> None:
+    check_base_ge_folder()
+
     option = 0
     click.echo('Type 1 if you want to create a suite for a \'normal\' dataset')
     click.echo('Type 2 if you want to create a suite for a Partitioned dataset')
