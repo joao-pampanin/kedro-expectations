@@ -6,7 +6,7 @@ from great_expectations.exceptions import DataContextError
 from kedro_expectations.exceptions import SuiteValidationFailure
 from pandas import DataFrame as PandasDataFrame
 from pyspark.sql import DataFrame as SparkDataFrame
-from kedro_expectations.utils import dot_to_underscore, get_property_from_catalog_item, validate, get_suite_name, get_all_expectations, base_ge_folder_exists
+from kedro_expectations.utils import dot_to_underscore, get_property_from_catalog_item, validate, get_suite_name, get_all_expectations, base_ge_folder_exists, location_is_kedro_root_folder
 
 
 class KedroExpectationsHooks:
@@ -19,7 +19,7 @@ class KedroExpectationsHooks:
     @hook_impl
     def before_node_run(self, inputs: Dict[str, Any]) -> None:
         """Validate inputs that are supported and have an expectation suite available."""
-        if self.before_node_run and base_ge_folder_exists():
+        if self.before_node_run and base_ge_folder_exists() and location_is_kedro_root_folder():
             self._run_validation(inputs)
 
     def _run_validation(self, data: Dict[str, Any]) -> None:
