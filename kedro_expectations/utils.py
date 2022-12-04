@@ -5,24 +5,51 @@ import json
 import great_expectations as ge
 import datetime
 from great_expectations.core.batch import RuntimeBatchRequest
+from kedro.framework.session import KedroSession
 
-# def get_execution_engine_class(dataset, fileextension):
-#     # Warning - Não existe suporte pra .pickle e .pq
-#     pandas_supported_types = [ ".csv", ".tsv", ".xls", ".xlsx", ".parquet", ".parq", ".pqt", ".json", ".pkl", ".feather", ".csv.gz", ".tsv.gz", ".sas7bdat", ".xpt"]
-#     # spark_supported_types = [ ".csv", ".tsv", ".parquet", ".parq", ".pqt"]
-
-#     if (not str(dataset['type']).startswith('spark')) and (fileextension in pandas_supported_types):
-#         execution_engine_class = "PandasExecutionEngine"
-#         execution_engine_aux_name = "pandas"
-#         return execution_engine_class, execution_engine_aux_name
-#     else:
-#         return None, None
 
 def base_ge_folder_exists():
     base_folder = os.getcwd()
     ge_folder = os.path.join(base_folder, "great_expectations")
-    return os.path.exists(ge_folder)
+    if os.path.exists(ge_folder) is True:
+        return True
+    else:
+        message = """
+        This command has NOT been run
+        Kedro expectations wasn't initiated yet!
+        Please run \'kedro expectations init\' before running this command.
+        """
+        print(message)
+        return False
 
+
+def base_ge_folder_does_NOT_exist():
+    base_folder = os.getcwd()
+    ge_folder = os.path.join(base_folder, "great_expectations")
+    if os.path.exists(ge_folder) is False:
+        return True
+    else:
+        message = """
+        This command has NOT been run
+        Kedro expectations was already initiated and is ready to use.
+        If you want to reset everything related to the plugin, you
+        can delete the great_expectations folder and run init again
+        """
+        print(message)
+        return False
+
+
+def location_is_kedro_root_folder():
+    try:
+        project_path = os.getcwd()
+        KedroSession.create(project_path=project_path)
+        return True
+    except ModuleNotFoundError:
+        print("""
+        Cannot run command!
+        You need to be in a kedro root folder to use Kedro Expectations!
+        """)
+        return False
 
 def dot_to_underscore(value):
     adjusted_value = str(value).replace(".", "_")

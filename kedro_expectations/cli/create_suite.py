@@ -1,18 +1,18 @@
 import click
 import os
 from typing import Any, Dict, cast, Callable
-import json
 import pandas as pd
-import great_expectations as ge
 from kedro.framework.session import KedroSession
-from great_expectations.core.batch import RuntimeBatchRequest
-from kedro_expectations.utils import dot_to_underscore, create_raw_suite, populate_new_suite, base_ge_folder_exists
+from kedro_expectations.utils import dot_to_underscore, create_raw_suite, populate_new_suite, base_ge_folder_exists, location_is_kedro_root_folder
 
 
 @click.command()
 def create_suite() -> None:
-    base_ge_folder_exists()
+    if location_is_kedro_root_folder() and base_ge_folder_exists():
+        start_suite_creation()
 
+
+def start_suite_creation():
     option = 0
     click.echo('Type 1 if you want to create a suite for a \'normal\' dataset')
     click.echo('Type 2 if you want to create a suite for a Partitioned dataset')
