@@ -7,6 +7,7 @@ import datetime
 from great_expectations.core.batch import RuntimeBatchRequest
 from kedro.framework.session import KedroSession
 import click
+from time import sleep
 
 
 def base_ge_folder_exists():
@@ -58,8 +59,8 @@ def is_dataset_in_catalog(input, catalog):
         return True
     else:
         print(
-            f"The input {input} was not found at the DataCatalog.\n",
-            "The following datasets are available for use:\n" 
+            f"\n\nThe input {input} was not found at the DataCatalog.\n",
+            "The following datasets are available for use:\n"
         )
         print(*catalog.list(), sep=', ')
         return False
@@ -157,7 +158,7 @@ def create_raw_suite(adjusted_input, suite_name, expectation_suite_name):
         os.getcwd(),
         "great_expectations",
         "expectations",
-        adjusted_input, #Tem que criar a pasta se nao existir, pô
+        adjusted_input,
         suite_name+".json",
     )
 
@@ -193,17 +194,47 @@ def populate_new_suite(input_data, expectation_suite_name):
         expectation_suite_name=expectation_suite_name,
     )
 
-    exclude_column_names = []  #Add this functionality
+    click.echo('\n\nYour dataset has the following columns:')
+    click.echo(input_data.columns.values)
+    click.echo('One by one, type the name of the columns you do NOT want to validade.\nOnce you are finished, type 0 to continue')
+    column_to_remove = ""
+    exclude_column_names = []
+    while column_to_remove != "0":
+        column_to_remove = click.prompt('', type=str)
+        if column_to_remove == "0":
+            pass
+        elif column_to_remove not in input_data.columns:
+            print(f"The column {column_to_remove} does't exist in this dataframe. Try typing again")
+        else:
+            exclude_column_names.append(column_to_remove)
+        
+    if exclude_column_names:
+        print("The following columns are not going to be validated:")
+        print(exclude_column_names)
+        sleep(3)
+    else:
+        print("You chose for all columns to be validated!")
+        sleep(3)
 
-    result = ge_context.assistants.onboarding.run(
-        batch_request=batch_request,
-        exclude_column_names=exclude_column_names,
-    )
-    validator.expectation_suite = result.get_expectation_suite(
-        expectation_suite_name=expectation_suite_name
-    )
-    validator.save_expectation_suite(discard_failed_expectations=False)
+    # Removing duplicates
+    exclude_column_names = [*set(exclude_column_names)]
 
+    if len(exclude_column_names) >= len(input_data.columns.values):
+        print(
+            "\n\nAll the columns were marked to be excluded!",
+            "Impossible to validade!"
+        )
+    else:
+        result = ge_context.assistants.onboarding.run(
+            batch_request=batch_request,
+            exclude_column_names=exclude_column_names,
+        )
+        validator.expectation_suite = result.get_expectation_suite(
+            expectation_suite_name=expectation_suite_name
+        )
+        validator.save_expectation_suite(discard_failed_expectations=False)
+        
+        print("\nFor more information about how to edit the expectations suite, access: https://docs.greatexpectations.io/docs/guides/expectations/creating_custom_expectations/overview/\n")
 
 def choose_valid_suite_name():
     suite_name = "."

@@ -37,8 +37,6 @@ def start_suite_creation():
                 input_data = catalog.load(input)
                 populate_new_suite(input_data, expectation_suite_name)
 
-                print("\nFor more information about how to edit the expectations suite, access: https://docs.greatexpectations.io/docs/guides/expectations/creating_custom_expectations/overview/\n")
-
     elif option == 2:
         option = 0
         click.echo('\nType 1 if you want to create a generic expectation')
