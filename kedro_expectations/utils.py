@@ -6,6 +6,7 @@ import great_expectations as ge
 import datetime
 from great_expectations.core.batch import RuntimeBatchRequest
 from kedro.framework.session import KedroSession
+import click
 
 
 def base_ge_folder_exists():
@@ -50,6 +51,19 @@ def location_is_kedro_root_folder():
         You need to be in a kedro root folder to use Kedro Expectations!
         """)
         return False
+
+
+def is_dataset_in_catalog(input, catalog):
+    if input in catalog.list():
+        return True
+    else:
+        print(
+            f"The input {input} was not found at the DataCatalog.\n",
+            "The following datasets are available for use:\n" 
+        )
+        print(*catalog.list(), sep=', ')
+        return False
+
 
 def dot_to_underscore(value):
     adjusted_value = str(value).replace(".", "_")
@@ -189,3 +203,15 @@ def populate_new_suite(input_data, expectation_suite_name):
         expectation_suite_name=expectation_suite_name
     )
     validator.save_expectation_suite(discard_failed_expectations=False)
+
+
+def choose_valid_suite_name():
+    suite_name = "."
+    while '.' in suite_name or ',' in suite_name or ' ' in suite_name:
+        suite_name = click.prompt('', type=str)
+        if '.' in suite_name or ' ' in suite_name:
+            print(
+                "Please choose another name for your suite.",
+                "It cannot contain dots, commas or spaces"
+            )
+    return suite_name
