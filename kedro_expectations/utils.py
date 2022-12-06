@@ -10,34 +10,36 @@ import click
 from time import sleep
 
 
-def base_ge_folder_exists():
+def base_ge_folder_exists(verbose = True):
     base_folder = os.getcwd()
     ge_folder = os.path.join(base_folder, "great_expectations")
     if os.path.exists(ge_folder) is True:
         return True
     else:
-        message = """
-        This command has NOT been run
-        Kedro expectations wasn't initiated yet!
-        Please run \'kedro expectations init\' before running this command.
-        """
-        print(message)
+        if verbose is True:
+            message = """
+            This command has NOT been run
+            Kedro expectations wasn't initiated yet!
+            Please run \'kedro expectations init\' before running this command.
+            """
+            print(message)
         return False
 
 
-def base_ge_folder_does_NOT_exist():
+def base_ge_folder_does_NOT_exist(verbose = True):
     base_folder = os.getcwd()
     ge_folder = os.path.join(base_folder, "great_expectations")
     if os.path.exists(ge_folder) is False:
         return True
     else:
-        message = """
-        This command has NOT been run
-        Kedro expectations was already initiated and is ready to use.
-        If you want to reset everything related to the plugin, you
-        can delete the great_expectations folder and run init again
-        """
-        print(message)
+        if verbose == True:
+            message = """
+            This command has NOT been run
+            Kedro expectations was already initiated and is ready to use.
+            If you want to reset everything related to the plugin, you
+            can delete the great_expectations folder and run init again
+            """
+            print(message)
         return False
 
 
@@ -85,7 +87,7 @@ def get_property_from_catalog_item(catalog_item, item_property):
             dataset = catalog[catalog_item]
             return dataset[item_property]
     except KeyError:
-        print(f"item {catalog_item} not in catalog")
+        pass
 
 
 def validate(adjusted_key, suite_name, validation_df):

@@ -19,7 +19,7 @@ class KedroExpectationsHooks:
     @hook_impl
     def before_node_run(self, inputs: Dict[str, Any]) -> None:
         """Validate inputs that are supported and have an expectation suite available."""
-        if self.before_node_run and base_ge_folder_exists() and location_is_kedro_root_folder():
+        if self.before_node_run and base_ge_folder_exists(verbose=False) and location_is_kedro_root_folder():
             self._run_validation(inputs)
 
     def _run_validation(self, data: Dict[str, Any]) -> None:
