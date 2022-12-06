@@ -33,8 +33,6 @@ class KedroExpectationsHooks:
                     # Looking for an specific expectation
                     adjusted_key_pt1 = dot_to_underscore(key)
                     adjusted_key_pt2 = dot_to_underscore(casted_key)
-                    print(f"Minha adjusted_key_pt1 é: {adjusted_key_pt1}")
-                    print(f"Minha adjusted_key_pt2 é: {adjusted_key_pt2}")
 
                     adjusted_key = os.path.join(adjusted_key_pt1, adjusted_key_pt2)
                     all_expectations = get_all_expectations(adjusted_key)
@@ -55,7 +53,11 @@ class KedroExpectationsHooks:
                             raise SuiteValidationFailure(
                                 f"Suite {suite_name} for DataSet {adjusted_key} failed!"
                             )
-
+                    if not all_expectations:
+                        print(
+                            f"No expectation suite was found for \"{key}\".",
+                            "Validation will be skipped!"
+                        )
             else:
                 adjusted_key = dot_to_underscore(key)
                 all_expectations = get_all_expectations(adjusted_key)

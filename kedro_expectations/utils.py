@@ -154,11 +154,18 @@ def get_suite_name(exp_file, adjusted_key):
 
 
 def create_raw_suite(adjusted_input, suite_name, expectation_suite_name):
-    new_suite_path = os.path.join(
+    base_exp_path = os.path.join(
         os.getcwd(),
         "great_expectations",
         "expectations",
         adjusted_input,
+    )
+
+    if not os.path.exists(base_exp_path):
+        os.makedirs(base_exp_path)
+
+    new_suite_path = os.path.join(
+        base_exp_path,
         suite_name+".json",
     )
 
@@ -246,3 +253,20 @@ def choose_valid_suite_name():
                 "It cannot contain dots, commas or spaces"
             )
     return suite_name
+
+
+def choose_valid_dataset_name():
+    dataset_name = click.prompt('', type=str)
+    is_partitioned = is_dataset_partitioned(dataset_name)
+    while is_partitioned is not True:
+        print(f"The dataset {dataset_name} is not partitioned! Type again:")
+        dataset_name = click.prompt('', type=str)
+        is_partitioned = is_dataset_partitioned(dataset_name)
+    return dataset_name
+
+
+def is_dataset_partitioned(dataset_name):
+    if get_property_from_catalog_item(dataset_name, "type") == "PartitionedDataSet":
+        return True
+    else:
+        return False
