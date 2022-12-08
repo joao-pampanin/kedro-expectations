@@ -67,20 +67,20 @@ This example was made using ProjetaAi's Partitioned Iris Starter
 The first step to use the plugin is to use the "kedro expectations init" command. Below we can see the expected result:
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/1_init.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/1_init.png">
 </p>
 
 As soon as it is created, we can run the second command: "kedro expectations create-suite"
 You will be prompted to choose between (1) suites for generic datasets and (2) suites for partitioned datasets:
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/3_createsuite.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/3_createsuite.png">
 </p>
 
 Then we can choose between a generic or an specific expectation. In this example, we will press (2) to create an specific one:
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/4_createsuite.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/4_createsuite.png">
 </p>
 
 Now the plugin will ask three questions. The first two must be answered based on your project, and the last one is any name based on your preference
@@ -88,25 +88,25 @@ Now the plugin will ask three questions. The first two must be answered based on
 Our partitioned dataset structure inside the project:
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/8_createsuite.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/8_createsuite.png">
 </p>
 
 Questions asked by the CLI:
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/5_createsuite.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/5_createsuite.png">
 </p>
 
 The last step is to decide if we want to exclude some columns from the expectation suite. Whenever you selected you desired columns, type "0" (without quote marks):
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/6_createsuite.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/6_createsuite.png">
 </p>
 
 Then your dataset will be validated automatically and will be found at great_expectations/expectations/"your_dataset_name"/"your_expectation_name"
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/7_createsuite.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/7_createsuite.png">
 </p>
 
 ### Adding the Hook
@@ -114,7 +114,7 @@ Then your dataset will be validated automatically and will be found at great_exp
 Now, to be able to test, we only need to add 2 lines of code in our settings.py file:
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/9_hookconfig.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/9_hookconfig.png">
 </p>
 
 ### Running the Kedro project
@@ -122,5 +122,5 @@ Now, to be able to test, we only need to add 2 lines of code in our settings.py 
 After adding the Hook there is no extra step. You can simply run the project by typing the normal "kedro run" command. Whenever a dataset with an expectation suite is called by the pipeline, Kedro Expectations will validade it and add the results to the data_docs
 
 <p align="center">
-  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/10_run.png">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/10_run.png">
 </p>
