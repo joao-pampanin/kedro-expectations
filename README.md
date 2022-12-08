@@ -56,3 +56,71 @@ Its default value is "False", and to change it the only step necessary is to cha
 HOOKS = (KedroExpectationsHooks(fail_fast=True),)
 ```
 
+## Example
+
+To make things clearer, the following example will approach the most complex usage of the plugin, which is when we want to create an specific expectation for a partitioned dataset
+
+This example was made using ProjetaAi's Partitioned Iris Starter
+
+### Init and Suite Creation
+
+The first step to use the plugin is to use the "kedro expectations init" command. Below we can see the expected result:
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/1_init.png">
+</p>
+
+As soon as it is created, we can run the second command: "kedro expectations create-suite"
+You will be prompted to choose between (1) suites for generic datasets and (2) suites for partitioned datasets:
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/3_createsuite.png">
+</p>
+
+Then we can choose between a generic or an specific expectation. In this example, we will press (2) to create an specific one:
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/4_createsuite.png">
+</p>
+
+Now the plugin will ask three questions. The first two must be answered based on your project, and the last one is any name based on your preference
+
+Our partitioned dataset structure inside the project:
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/8_createsuite.png">
+</p>
+
+Questions asked by the CLI:
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/5_createsuite.png">
+</p>
+
+The last step is to decide if we want to exclude some columns from the expectation suite. Whenever you selected you desired columns, type "0" (without quote marks):
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/6_createsuite.png">
+</p>
+
+Then your dataset will be validated automatically and will be found at great_expectations/expectations/"your_dataset_name"/"your_expectation_name"
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/7_createsuite.png">
+</p>
+
+### Adding the Hook
+
+Now, to be able to test, we only need to add 2 lines of code in our settings.py file:
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/9_hookconfig.png">
+</p>
+
+### Running the Kedro project
+
+After adding the Hook there is no extra step. You can simply run the project by typing the normal "kedro run" command. Whenever a dataset with an expectation suite is called by the pipeline, Kedro Expectations will validade it and add the results to the data_docs
+
+<p align="center">
+  <img width="255" src="https://github.com/joao-pampanin/kedro-expectations/tree/develop/images/10_run.png">
+</p>
