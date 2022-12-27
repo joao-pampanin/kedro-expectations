@@ -3,17 +3,18 @@ A tool to better integrate Kedro and Great Expectations
 
 ## Introduction
 
-Kedro Expectaions is a tool designed to make the use of Great Expectations within ProjetaAi projects easier. It is composed of a couple commands and a hook, allowing the user create suites and run validations based on the DataCatalog and using directly the Kedro input as it's called by the normal pipeline
+Kedro Expectations is a tool designed to make the use of Great Expectations (GE) within ProjetaAi projects easier. It is composed of a couple of commands and a hook, allowing the user to create suites and run validations based on the DataCatalog and using directly the Kedro input as it's called by the normal pipeline
 
 ## Features
 
-- ⏳ Initialization of GE without having to worry about datasources
-- 🎯 Creation of GE suites automatically, using the Data Assistant
+- ⏳ Initialization of GE without having to worry about [datasources](https://docs.greatexpectations.io/docs/terms/datasource)
+- 🎯 Creation of [GE suites](https://docs.greatexpectations.io/docs/terms/expectation_suite/) automatically, using the [Data Assistant](https://docs.greatexpectations.io/docs/terms/data_assistant/)
 - 🚀 Running validations within the Kedro pipeline
 
 ## Installation
 
 For now, the plugin can only be installed through this github repo, but soon it will be available at PyPI
+It can be installed with pip and referenced in the requirements.txt file as "git+https://github.com/joao-pampanin/kedro-expectations.git@develop"
 
 ## Usage
 
@@ -25,7 +26,7 @@ The first step to use the plugin is running an init command. This command will c
 kedro expectations init
 ```
 
-After the init command the plugin is ready to create expectation suites. It is possible to create expectation suites for Non-spark dataframe objects (there is no need to worry about file extension since Kedro Expectations gets all it needs from the Kedro input) and ProjetaAi Partitioned datasets
+After the init command the plugin is ready to create expectation suites. It is possible to create expectation suites for Non-spark dataframe objects (there is no need to worry about file extension since Kedro Expectations gets all it needs from the Kedro input) and Partitioned datasets
 
 Within partitioned datasets, it is possible to create generic expectations, meaning all the partitions will use that expectation, or specific expectations, meaning only the specified partition will use the generated expectation
 
@@ -48,7 +49,7 @@ HOOKS = (KedroExpectationsHooks(fail_fast=False),)
 
 ### Fail Fast
 
-fail_fast is a parameter added to allow a great expectations validation failure to break the pipeline run. It is useful when you want your pipeline to keep running only if GE doesn't find any incoherences at any validation
+fail_fast is a parameter added to give more control over the pipeline. That way it is possible to define if a great expectations validation failure breaks the pipeline run (fail_fast = True) or not (fail_fast = False).
 
 Its default value is "False", and to change it the only step necessary is to change the parameter value within your hook usage
 
@@ -58,9 +59,15 @@ HOOKS = (KedroExpectationsHooks(fail_fast=True),)
 
 ## Example
 
-To make things clearer, the following example will approach the most complex usage of the plugin, which is when we want to create an specific expectation for a partitioned dataset
+To make things clearer, the following example will approach the most complex usage of the plugin, which is when we want to create an specific expectation for a partitioned dataset. It was done using the [Partitioned Iris Starter](https://github.com/ProjetaAi/projetaai-starters/tree/main/for_projetaai/project/partitioned_projetaai)
 
-This example was made using ProjetaAi's Partitioned Iris Starter
+To start using the plugin, make sure you are in your project's root folder and the pipeline is executing correctly
+
+Considering you have the plugin installed and the conditions right above are true, the plugin should be used the following way:
+- Run the init command
+- Create one or more suites depending on your needs
+- Make sure to enable the Kedro Great Hook in your project's settings
+- Execute the Kedro Pipeline normally 
 
 ### Init and Suite Creation
 
@@ -116,6 +123,8 @@ Now, to be able to test, we only need to add 2 lines of code in our settings.py 
 <p align="center">
   <img src="https://github.com/joao-pampanin/kedro-expectations/blob/develop/images/9_hookconfig.png">
 </p>
+
+For more information about the functionality of Kedro Hooks, please refer to the [Kedro Hook Documentation](https://kedro.readthedocs.io/en/stable/hooks/introduction.html)
 
 ### Running the Kedro project
 
